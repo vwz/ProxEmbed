@@ -27,14 +27,14 @@ Main.java is the entry class. And the program will read parameters from file jav
 
 In "python - model", the entry file is experimentForOneFileByParams.py. This file provides us a method to get parameters from file pythonParamsConfig, and then trains the model and then tests it.
 For instance, in file pythonParamsConfig, if we set 
-	root_dir = ./toy_data/,
+	root_dir = D:/dataset/icde2016/dataset,
 	dataset_name = linkedin,
 	suffix = 4,
 	class_name = school,
 	index = 1,
-then this model will use ./toy_data/linkedin.splits/train.4/train_school_1 as the training data, 
-	and will use ./toy_data/linkedin.splits/test/test_school_1 as test data,
-	and will use ./toy_data/linkedin.splits/ideal/ideal_school_1 as ideal data (ground-truth).
+then this model will use D:/dataset/icde2016/dataset/linkedin.splits/train.4/train_school_1 as the training data, 
+	and will use D:/dataset/icde2016/dataset/linkedin.splits/test/test_school_1 as test data,
+	and will use D:/dataset/icde2016/dataset/linkedin.splits/ideal/ideal_school_1 as ideal data (ground-truth).
 	
 So at last, this model then will output the results of NDCG and MAP.
 
