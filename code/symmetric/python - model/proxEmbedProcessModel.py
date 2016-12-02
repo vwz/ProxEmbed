@@ -7,7 +7,6 @@ import numpy
 import theano
 from theano import tensor
 import lstmModel
-import toolsFunction
 
 
 def proxEmbedModel(model_options,tparams):
@@ -22,7 +21,7 @@ def proxEmbedModel(model_options,tparams):
     def _processSubpath(index):
         length=subPaths_lens[index] 
         x=subPaths_matrix[:length,index:index+1] 
-        x_mask=subPaths_mask[:length,index:index+1]
+        x_mask=subPaths_mask[:length,index:index+1] 
         emb=lstmModel.get_lstm(model_options, tparams, x, x_mask, wordsEmbeddings)
         emb=emb*discountModel(model_options['discount_alpha'], length)
         return emb 
@@ -34,9 +33,9 @@ def proxEmbedModel(model_options,tparams):
     emb=0
     if model_options['subpaths_pooling_method']=='mean-pooling': # mean-pooling
         emb = rval.sum(axis=0) 
-        emb = emb / rval.shape[0] 
+        emb = emb / rval.shape[0]
     elif model_options['subpaths_pooling_method']=='max-pooling': # max-pooling
-        emb = rval.max(axis=0) 
+        emb = rval.max(axis=0)
     else: # default, mean-pooling
         emb = rval.sum(axis=0) 
         emb = emb / rval.shape[0] 

@@ -22,7 +22,7 @@ def get_AP(k,ideal,test):
     n=k 
     x=0
     if m>n:
-       x=n 
+        x=n 
     else:
         x=m
     if x==0:
@@ -36,7 +36,7 @@ def get_MAP(k,ideal_map,test_map):
     """
     accumulation=0.0
     for key in ideal_map.keys(): 
-        accumulation+=get_AP(k, ideal_map[key], test_map[key])
+        accumulation+=get_AP(k, ideal_map[key], test_map[key]) 
     if len(ideal_map)==0: 
         return 0
     return accumulation/len(ideal_map)
@@ -51,7 +51,7 @@ def get_nDCG(k,ideal,test):
     for i in range(len(test)):
         if i>=k: 
             break
-        if test[i] in ideal: 
+        if test[i] in ideal:
             if i==0:
                 accumulation+=1.0
             else:

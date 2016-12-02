@@ -29,7 +29,7 @@ def getTrainingData(trainingDataFile):
             arr.append(tmp[0]+'-'+tmp[2])
             arr.append(tmp[2]+'-'+tmp[0])
             pairs.append(arr) 
-            tmp=[int(x) for x in tmp]
+            tmp=[int(x) for x in tmp] 
             data.append(tmp)
             
     return data,pairs
@@ -52,12 +52,12 @@ def getWordsEmbeddings(wordsEmbeddings_path):
     with open(wordsEmbeddings_path) as f:
         for l in f:
             arr=l.strip().split()
-            if len(arr)==2:
+            if len(arr)==2: 
                 size=int(arr[0])
                 dimension=int(arr[1])
-                wemb=numpy.zeros((size,dimension)) 
+                wemb=numpy.zeros((size,dimension)) # @UndefinedVariable
                 continue
-            id=int(arr[0]) 
+            id=int(arr[0])
             for i in range(0,dimension):
                 wemb[id][i]=float(arr[i+1])
     return wemb,dimension,size
@@ -82,7 +82,7 @@ def loadAllSubPaths(subpaths_file,maxlen=1000):
             sentence=[int(y) for y in splitByTab[2].split()[:]] 
             if len(sentence)>maxlen: 
                 continue
-            if key in map: 
+            if key in map:
                 map[key].append(sentence)
             else: 
                 tmp=[]
@@ -109,7 +109,7 @@ def prepareDataForTraining(trainingDataTriples,trainingDataPairs,subpaths_map):
             continue;
         list=subpaths_map[key]
         n_subpaths+=len(list) 
-        for l in list: 
+        for l in list:
             if len(l)>maxlen:
                 maxlen=len(l)
                 
@@ -131,23 +131,23 @@ def prepareDataForTraining(trainingDataTriples,trainingDataPairs,subpaths_map):
             list=None
             if pair in subpaths_map: 
                 list=subpaths_map[pair] 
-            if list is not None:
-                triples_matrix[i][j][0]=current_index 
+            if list is not None: 
+                triples_matrix[i][j][0]=current_index
                 current_index+=len(list)
-                triples_matrix[i][j][1]=current_index
+                triples_matrix[i][j][1]=current_index 
                 for x in range(len(list)):
                     index=path_index+x 
                     path=list[x] 
                     subPaths_lens[index]=len(path) 
                     for y in range(len(path)): 
-                        subPaths_matrix[y][index]=path[y]
+                        subPaths_matrix[y][index]=path[y] 
                         subPaths_mask[y][index]=1. 
                 path_index+=len(list) 
             else : 
                 triples_matrix[i][j][0]=current_index 
                 current_index+=0
                 triples_matrix[i][j][1]=current_index 
-    
+                
     count=0
     for i in range(len(triples_matrix)):
         if triples_matrix[i][0][0]!=triples_matrix[i][1][1] and triples_matrix[i][2][0]!=triples_matrix[i][3][1]:
@@ -183,16 +183,16 @@ def prepareDataForTest(query,candidate,subpaths_map):
     subPaths_matrix=numpy.zeros([maxlen,len(subpaths)]).astype('int64')
     subPaths_mask=numpy.zeros([maxlen,len(subpaths)]).astype(theano.config.floatX)  # @UndefinedVariable
     subPaths_lens=numpy.zeros([len(subpaths),]).astype('int64')
-    for i in range(len(subpaths)): 
-        subpath=subpaths[i] 
+    for i in range(len(subpaths)):
+        subpath=subpaths[i]
         subPaths_lens[i]=len(subpath) 
         for j in range(len(subpath)):
-            subPaths_matrix[j][i]=subpath[j] 
-            subPaths_mask[j][i]=1. 
+            subPaths_matrix[j][i]=subpath[j]
+            subPaths_mask[j][i]=1.  
     
     return subPaths_matrix,subPaths_mask,subPaths_lens
-            
-            
+
+    
 def get_minibatches_idx(n, minibatch_size, shuffle=False):
     """
     Used to shuffle the dataset at each iteration.
@@ -213,6 +213,8 @@ def get_minibatches_idx(n, minibatch_size, shuffle=False):
         # Make a minibatch out of what is left
         minibatches.append(idx_list[minibatch_start:])
 
-    return zip(range(len(minibatches)), minibatches)
+    return zip(range(len(minibatches)), minibatches)# 将(index,minibatch)设置成tuple（所有的tuple组成一个list），然后返回这个list
+
+
 
 

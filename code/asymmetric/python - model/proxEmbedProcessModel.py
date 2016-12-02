@@ -7,7 +7,6 @@ import numpy
 import theano
 from theano import tensor
 import lstmModel
-import toolsFunction
 
 
 def proxEmbedModel(model_options,tparams):
@@ -21,8 +20,8 @@ def proxEmbedModel(model_options,tparams):
     
     def _processSubpath(index):
         length=subPaths_lens[index] 
-        x=subPaths_matrix[:length,index:index+1] 
-        x_mask=subPaths_mask[:length,index:index+1]
+        x=subPaths_matrix[:length,index:index+1]
+        x_mask=subPaths_mask[:length,index:index+1] 
         emb=lstmModel.get_lstm(model_options, tparams, x, x_mask, wordsEmbeddings)
         emb=emb*discountModel(model_options['discount_alpha'], length)
         return emb 

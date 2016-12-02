@@ -28,7 +28,7 @@ def lstm_layer(tparams, state_below, options, prefix='lstm', mask=None):
     """
     nsteps = state_below.shape[0] 
     if state_below.ndim == 3:
-        n_samples = state_below.shape[1]
+        n_samples = state_below.shape[1] 
     else:
         n_samples = 1
 
@@ -45,8 +45,8 @@ def lstm_layer(tparams, state_below, options, prefix='lstm', mask=None):
 
         i = tensor.nnet.sigmoid(_slice(preact, 0, options['dimension'])) # input gate 
         f = tensor.nnet.sigmoid(_slice(preact, 1, options['dimension'])) # forget gate 
-        o = tensor.nnet.sigmoid(_slice(preact, 2, options['dimension'])) # output gate
-        c = tensor.tanh(_slice(preact, 3, options['dimension'])) # cell 
+        o = tensor.nnet.sigmoid(_slice(preact, 2, options['dimension'])) # output gate 
+        c = tensor.tanh(_slice(preact, 3, options['dimension'])) 
 
         c = f * c_ + i * c 
         c = m_[:, None] * c + (1. - m_)[:, None] * c_
@@ -60,14 +60,14 @@ def lstm_layer(tparams, state_below, options, prefix='lstm', mask=None):
     dim_proj = options['dimension']
     rval, updates = theano.scan(_step, 
                                 sequences=[mask, state_below],
-                                outputs_info=[tensor.alloc(numpy_floatX(0.),
+                                outputs_info=[tensor.alloc(numpy_floatX(0.), 
                                                            n_samples,
                                                            dim_proj),
                                               tensor.alloc(numpy_floatX(0.), 
                                                            n_samples,
                                                            dim_proj)],
                                 name=_p(prefix, '_layers'),
-                                n_steps=nsteps) # maxlen
+                                n_steps=nsteps) 
     return rval[0] 
 
 
@@ -76,7 +76,6 @@ def build_model(tparams, options, x, mask, wordsemb):
     """
     build the model
     """
-
     n_timesteps = x.shape[0] 
     n_samples = x.shape[1] 
     emb = wordsemb[x.flatten()].reshape([n_timesteps,
@@ -86,22 +85,18 @@ def build_model(tparams, options, x, mask, wordsemb):
                                             prefix='lstm',
                                             mask=mask)
     output=None
-    if options['h_output_method'] == 'h':
+    if options['h_output_method'] == 'h': # the last h as the output
         temp=proj[-1] 
         output=temp[0] 
-    elif options['h_output_method'] == 'mean-pooling': 
+    elif options['h_output_method'] == 'mean-pooling': # mean-pooling as the output
         temp1 = (proj * mask[:, :, None]).sum(axis=0) 
         temp2 = temp1 / mask.sum(axis=0)[:, None]
         output=temp2[0]
-    elif options['h_output_method'] == 'max-pooling':
+    elif options['h_output_method'] == 'max-pooling': # max-pooling as the output
         temp1=proj * mask[:, :, None] 
         temp2=temp1.sum(axis=1) 
         output = temp2.max(axis=0) 
-    elif options['h_output_method'] == 'abs-max-pooling':
-        temp1=proj * mask[:, :, None] 
-        temp2=temp1.sum(axis=1) 
-        output=toolsFunction.max_poolingForMatrix(temp2) 
-    else : 
+    else : # default, the last h as the output
         temp=proj[-1]
         output=temp[0] 
     return  output

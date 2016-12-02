@@ -14,6 +14,9 @@ import evaluateTools
 
 
 def load_params(path, params):
+    """
+    load model params from file
+    """
     pp = numpy.load(path) 
     for kk, vv in params.items():
         if kk not in pp:
@@ -23,7 +26,7 @@ def load_params(path, params):
     return params
 
 
-def get_path2vecModel(
+def get_proxEmbedModel(
                       
                    model_params_path='', # the path of model parameters
                      word_dimension=0, # the dimension of words embedding 
@@ -42,7 +45,7 @@ def get_path2vecModel(
     tparams['lstm_U']=None
     tparams['lstm_b']=None
     tparams['w']=None
-    tparams=load_params(model_params_path, tparams)
+    tparams=load_params(model_params_path, tparams) 
     
     subPaths_matrix,subPaths_mask,subPaths_lens,wemb,score=proxEmbedProcessModel.proxEmbedModel(model_options, tparams)
     func=theano.function([subPaths_matrix,subPaths_mask,subPaths_lens,wemb], score) 
@@ -50,7 +53,7 @@ def get_path2vecModel(
     return func 
 
 
-def compute_path2vec(
+def compute_proxEmbed(
                      wordsEmbeddings=None, # words embeddings
                      wordsEmbeddings_path=None, # the file path of words embeddings
                      word_dimension=0, #  dimension of words embeddings
@@ -64,7 +67,7 @@ def compute_path2vec(
                      test_data_file='', # the file path of test data
                      top_num=10, # the top num to predict
                      ideal_data_file='', # ground truth
-                     func=None, # function
+                     func=None, # model function
                    ):
     """
     compute the result of the model
@@ -72,18 +75,18 @@ def compute_path2vec(
     
     model_options = locals().copy()
     
-    if wordsEmbeddings is None: 
+    if wordsEmbeddings is None:
         if wordsEmbeddings_path is not None: 
             wordsEmbeddings,dimension,wordsSize=dataProcessTools.getWordsEmbeddings(wordsEmbeddings_path)
         else: 
-            print 'There is not path for wordsEmbeddings, exit！！！'
+            print 'There is not path for wordsEmbeddings, exit!!!'
             exit(0) 
 
     if subpaths_map is None: 
         if subpaths_file is not None: 
             subpaths_map=dataProcessTools.loadAllSubPaths(subpaths_file, maxlen_subpaths)
         else: 
-            print 'There is not path for sub-paths, exit！！！'
+            print 'There is not path for sub-paths, exit!!!'
             exit(0)
 
     line_count=0 
@@ -94,13 +97,13 @@ def compute_path2vec(
             arr=l.strip().split()
             query=int(arr[0]) 
             map={} 
-            for i in range(1,len(arr)):
+            for i in range(1,len(arr)): 
                 candidate=int(arr[i]) 
                 subPaths_matrix_data,subPaths_mask_data,subPaths_lens_data=dataProcessTools.prepareDataForTest(query, candidate, subpaths_map)
                 if subPaths_matrix_data is None and subPaths_mask_data is None and subPaths_lens_data is None: 
                     map[candidate]=-1000. 
                 else: 
-                    value=func(subPaths_matrix_data,subPaths_mask_data,subPaths_lens_data,wordsEmbeddings)
+                    value=func(subPaths_matrix_data,subPaths_mask_data,subPaths_lens_data,wordsEmbeddings) 
                     map[candidate]=value
             
             tops_in_line=toolsFunction.mapSortByValueDESC(map, top_num)
@@ -112,7 +115,7 @@ def compute_path2vec(
     with open(ideal_data_file) as f: 
         for l in f: 
             arr=l.strip().split()
-            arr=[int(x) for x in arr] 
+            arr=[int(x) for x in arr]
             ideal_map[line_count]=arr[1:] 
             line_count+=1 
     
@@ -120,8 +123,4 @@ def compute_path2vec(
     MnDCG=evaluateTools.get_MnDCG(top_num, ideal_map, test_map)
     
     return MAP,MnDCG
-    
-    
-    
-    
     

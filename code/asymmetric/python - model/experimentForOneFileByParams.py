@@ -3,24 +3,24 @@
 Training one dataset and then test NDCG and MAP.
 '''
 
-import ConfigParser
-import os
-import string, os, sys
-
 import numpy
-from theano import tensor
 import theano
+from theano import tensor
 
 import proxEmbed
 import proxEmbedProcessAndAssess
+import os
+
+import ConfigParser
+import string, os, sys
 
 
 if __name__=='__main__':
     
     cf = ConfigParser.SafeConfigParser()
     # read the parameters file.
-    cf.read("pythonParamsConfig")
 #     cf.read("/usr/lzmExperiment/proxEmbed/paramsSet/pythonParamsConfig")
+    cf.read("pythonParamsConfig")
     
     main_dir=cf.get("param", "root_dir") # main work dir
     dataset_name=cf.get("param", "dataset_name") # the name of one dataset
@@ -62,7 +62,7 @@ if __name__=='__main__':
     top_num=cf.getint("param", "top_num") # the top num to predict
     ideal_data_file=os.path.join(main_dir+'/',dataset_name+'.splits','ideal','ideal_'+class_name+'_'+index) # the file of ground truth
     
-    # training
+    # 首先训练模型
     proxEmbed.proxEmbedTraining(
                      trainingDataFile, 
                      wordsEmbeddings, 
@@ -72,53 +72,53 @@ if __name__=='__main__':
                      wordsSize, 
                      subpaths_map, 
                      subpaths_file, 
-                     maxlen_subpaths, 
+                     maxlen_subpaths,
                      h_output_method, 
                      maxlen,  
                      batch_size, 
                      is_shuffle_for_batch, 
                      discount_alpha, 
-                     subpaths_pooling_method, 
+                     subpaths_pooling_method,
                      objective_function_method, 
-                     objective_function_param,
+                     objective_function_param, 
                      lrate, 
-                     max_epochs,
-                      
+                     max_epochs, 
+                     
                      dispFreq, 
-                     saveFreq, 
+                     saveFreq,
                      saveto, 
-                      
+                     
                      decay_lstm_W, 
-                     decay_lstm_U, 
+                     decay_lstm_U,
                      decay_lstm_b, 
                      decay_w, 
                      )
     
     # load the function which is trained beforehand
-    computeFunc=proxEmbedProcessAndAssess.get_path2vecModel(
+    computeFunc=proxEmbedProcessAndAssess.get_proxEmbedModel(
                      saveto, 
                      word_dimension, 
-                     dimension,
+                     dimension, 
                      h_output_method, 
                      discount_alpha, 
                      subpaths_pooling_method, 
                       )
     # test the model
-    MAP,MnDCG=proxEmbedProcessAndAssess.compute_path2vec(
+    MAP,MnDCG=proxEmbedProcessAndAssess.compute_proxEmbed(
                      wordsEmbeddings, 
-                     wordsEmbeddings_path,
-                     word_dimension,
-                     dimension,
-                     wordsSize,
-                     subpaths_map, 
+                     wordsEmbeddings_path, 
+                     word_dimension, 
+                     dimension, 
+                     wordsSize, 
+                     subpaths_map,
                      subpaths_file,
                      maxlen_subpaths, 
-                     maxlen, 
+                     maxlen,  
                      
                      test_data_file, 
                      top_num, 
-                     ideal_data_file, 
-                     func=computeFunc, 
+                     ideal_data_file,
+                     func=computeFunc,
                    )
     
     print 'MAP==',MAP

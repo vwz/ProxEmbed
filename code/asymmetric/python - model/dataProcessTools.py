@@ -29,7 +29,7 @@ def getTrainingData(trainingDataFile):
             arr.append(tmp[0]+'-'+tmp[2])
             arr.append(tmp[2]+'-'+tmp[0])
             pairs.append(arr) 
-            tmp=[int(x) for x in tmp]
+            tmp=[int(x) for x in tmp] 
             data.append(tmp)
             
     return data,pairs
@@ -55,7 +55,7 @@ def getWordsEmbeddings(wordsEmbeddings_path):
             if len(arr)==2:
                 size=int(arr[0])
                 dimension=int(arr[1])
-                wemb=numpy.zeros((size,dimension)) 
+                wemb=numpy.zeros((size,dimension)) # @UndefinedVariable
                 continue
             id=int(arr[0]) 
             for i in range(0,dimension):
@@ -84,7 +84,7 @@ def loadAllSubPaths(subpaths_file,maxlen=1000):
                 continue
             if key in map: 
                 map[key].append(sentence)
-            else: 
+            else:
                 tmp=[]
                 tmp.append(sentence)
                 map[key]=tmp
@@ -104,7 +104,7 @@ def prepareDataForTraining(trainingDataTriples,trainingDataPairs,subpaths_map):
     for list in trainingDataPairs:
         for l in list:
             allPairs.append(l)
-    for key in allPairs: 
+    for key in allPairs:
         if key not in subpaths_map: 
             continue;
         list=subpaths_map[key]
@@ -125,22 +125,22 @@ def prepareDataForTraining(trainingDataTriples,trainingDataPairs,subpaths_map):
     for i in range(len(trainingDataPairs)): 
         pairs=trainingDataPairs[i] 
         
-        valid_triples_count+=1 
-        for j in range(len(pairs)): 
+        valid_triples_count+=1
+        for j in range(len(pairs)):
             pair=pairs[j]
             list=None
             if pair in subpaths_map: 
                 list=subpaths_map[pair] 
-            if list is not None:
+            if list is not None: 
                 triples_matrix[i][j][0]=current_index 
                 current_index+=len(list)
-                triples_matrix[i][j][1]=current_index
+                triples_matrix[i][j][1]=current_index 
                 for x in range(len(list)):
                     index=path_index+x 
                     path=list[x] 
                     subPaths_lens[index]=len(path) 
                     for y in range(len(path)): 
-                        subPaths_matrix[y][index]=path[y]
+                        subPaths_matrix[y][index]=path[y] 
                         subPaths_mask[y][index]=1. 
                 path_index+=len(list) 
             else : 
@@ -150,12 +150,12 @@ def prepareDataForTraining(trainingDataTriples,trainingDataPairs,subpaths_map):
     
     count=0
     for i in range(len(triples_matrix)):
-        if triples_matrix[i][0][0]!=triples_matrix[i][1][1] and triples_matrix[i][2][0]!=triples_matrix[i][3][1]:
+        if triples_matrix[i][0][0]!=triples_matrix[i][0][1] and triples_matrix[i][2][0]!=triples_matrix[i][2][1]:
             count+=1
     triples_matrix_new=numpy.zeros([count,4,2]).astype('int64')
     index=0
     for i in range(len(triples_matrix)):
-        if triples_matrix[i][0][0]!=triples_matrix[i][1][1] and triples_matrix[i][2][0]!=triples_matrix[i][3][1]:
+        if triples_matrix[i][0][0]!=triples_matrix[i][0][1] and triples_matrix[i][2][0]!=triples_matrix[i][2][1]:
             triples_matrix_new[index]=triples_matrix[i]
             index+=1
     triples_matrix=triples_matrix_new
@@ -169,7 +169,7 @@ def prepareDataForTest(query,candidate,subpaths_map):
     """
     key1=bytes(query)+'-'+bytes(candidate)
     key2=bytes(candidate)+'-'+bytes(query)
-    if key1 not in subpaths_map and key2 not in subpaths_map:
+    if key1 not in subpaths_map and key2 not in subpaths_map: 
         return None,None,None
     subpaths=[]
     if key1 in subpaths_map:
@@ -186,13 +186,40 @@ def prepareDataForTest(query,candidate,subpaths_map):
     for i in range(len(subpaths)): 
         subpath=subpaths[i] 
         subPaths_lens[i]=len(subpath) 
-        for j in range(len(subpath)):
-            subPaths_matrix[j][i]=subpath[j] 
-            subPaths_mask[j][i]=1. 
+        for j in range(len(subpath)): 
+            subPaths_matrix[j][i]=subpath[j]
+            subPaths_mask[j][i]=1.  
     
     return subPaths_matrix,subPaths_mask,subPaths_lens
             
             
+def prepareDataForTestAsymmetric(query,candidate,subpaths_map):
+    """
+       prepare data for asymmetric test
+    """
+    key1=bytes(query)+'-'+bytes(candidate)
+    if key1 not in subpaths_map : 
+        return None,None,None
+    subpaths=[]
+    if key1 in subpaths_map:
+        subpaths.extend(subpaths_map[key1]) 
+    maxlen=0
+    for subpath in subpaths:
+        if len(subpath)>maxlen:
+            maxlen=len(subpath)
+    subPaths_matrix=numpy.zeros([maxlen,len(subpaths)]).astype('int64')
+    subPaths_mask=numpy.zeros([maxlen,len(subpaths)]).astype(theano.config.floatX)  # @UndefinedVariable
+    subPaths_lens=numpy.zeros([len(subpaths),]).astype('int64')
+    for i in range(len(subpaths)): 
+        subpath=subpaths[i] 
+        subPaths_lens[i]=len(subpath)
+        for j in range(len(subpath)): 
+            subPaths_matrix[j][i]=subpath[j] 
+            subPaths_mask[j][i]=1.  
+    
+    return subPaths_matrix,subPaths_mask,subPaths_lens
+
+    
 def get_minibatches_idx(n, minibatch_size, shuffle=False):
     """
     Used to shuffle the dataset at each iteration.
@@ -214,5 +241,4 @@ def get_minibatches_idx(n, minibatch_size, shuffle=False):
         minibatches.append(idx_list[minibatch_start:])
 
     return zip(range(len(minibatches)), minibatches)
-
 
